@@ -5,7 +5,7 @@
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="./manifest.json">
 <meta name="description" content="SachCheck: संदिग्ध मैसेज और लिंक के संभावित चेतावनी संकेत जाँचें।">
-<title>SachCheck V3</title>
+<title>SachCheck V4</title>
 <style>
 :root{--ink:#132238;--muted:#64748b;--blue:#2457e6;--line:#e2e8f0;--bg:#f3f6fb}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
@@ -26,7 +26,7 @@ h3{font-size:16px;margin:0 0 10px}.tip{font-size:13px;line-height:1.5;margin:9px
 </style>
 </head>
 <body>
-<header><div class="brand"><div class="logo">✓</div><div><h1>SachCheck</h1><p>रुको, जाँचो, फिर भरोसा करो • V3 Prototype</p></div><button id="installBtn" class="install-btn hidden" onclick="installApp()">📲 ऐप इंस्टॉल करें</button></div></header>
+<header><div class="brand"><div class="logo">✓</div><div><h1>SachCheck</h1><p>रुको, जाँचो, फिर भरोसा करो • V4 • Installable Web App</p></div><button id="installBtn" class="install-btn hidden" onclick="installApp()">📲 ऐप इंस्टॉल करें</button></div></header>
 <main class="wrap">
 <div class="notice">🛡️ <b>ईमानदार नोट:</b> यह शुरुआती प्रोटोटाइप है। टेक्स्ट/लिंक की जाँच डिवाइस पर सामान्य नियमों से होती है। Screenshot OCR के लिए इंटरनेट और OCR लाइब्रेरी लोड होना ज़रूरी है। अभी कोई वास्तविक AI API या लाइव URL reputation सेवा कनेक्ट नहीं है।</div>
 <div class="tabs">
@@ -67,7 +67,7 @@ h3{font-size:16px;margin:0 0 10px}.tip{font-size:13px;line-height:1.5;margin:9px
 <div class="tip">💸 <b>पैसे भेजने/QR स्कैन करने से पहले पुष्टि करें।</b> पैसे पाने के लिए UPI PIN डालना नहीं पड़ता।</div>
 </section>
 </main>
-<footer>SachCheck V3 • मोबाइल-फ्रेंडली प्रोटोटाइप<br>कम चेतावनी संकेत मिलने का अर्थ सुरक्षित होना नहीं है। अंतिम पुष्टि हमेशा आधिकारिक स्रोत से करें।</footer>
+<footer>SachCheck V4 • मोबाइल-फ्रेंडली वेब ऐप<br>कम चेतावनी संकेत मिलने का अर्थ सुरक्षित होना नहीं है। अंतिम पुष्टि हमेशा आधिकारिक स्रोत से करें।</footer>
 <script>
 function switchTab(tab){
  const map={msg:'pmsg',shot:'pshot',link:'plink'};
