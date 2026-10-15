@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="./manifest.json">
+<meta name="description" content="SachCheck: संदिग्ध मैसेज और लिंक के संभावित चेतावनी संकेत जाँचें।">
+<title>SachCheck V3</title>
+<style>
+:root{--ink:#132238;--muted:#64748b;--blue:#2457e6;--line:#e2e8f0;--bg:#f3f6fb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+header{background:linear-gradient(135deg,#0f172a,#1e40af);color:#fff;padding:22px 17px 25px;border-radius:0 0 24px 24px}
+.brand{max-width:760px;margin:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.install-btn{margin-left:auto;border:1px solid #bfdbfe;background:#fff;color:#1e40af;border-radius:10px;padding:10px 12px;font-weight:800;font-size:12px}.install-btn.hidden{display:none}.logo{width:48px;height:48px;border-radius:15px;background:white;color:#1d4ed8;display:grid;place-items:center;font-size:27px;font-weight:900}
+h1{font-size:23px;margin:0}header p{font-size:13px;color:#dbeafe;margin:4px 0 0}.wrap{max-width:760px;margin:auto;padding:15px}
+.notice{border:1px solid #bfdbfe;background:#eff6ff;padding:12px;border-radius:14px;font-size:13px;line-height:1.5;margin-bottom:13px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}.tab{border:1px solid var(--line);background:white;color:var(--muted);padding:11px 5px;border-radius:12px;font-size:12px;font-weight:800}.tab.active{background:#e8efff;border-color:#93b4ff;color:#1d4ed8}
+.card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:13px;box-shadow:0 5px 20px #0f172a08}
+label{display:block;font-weight:800;margin-bottom:8px}textarea,input[type=url]{width:100%;font:inherit;border:1px solid #cbd5e1;border-radius:12px;padding:12px;outline:none;background:#fff;color:var(--ink)}textarea{min-height:125px;resize:vertical}
+.btn{border:0;background:var(--blue);color:white;border-radius:12px;padding:13px;width:100%;font:inherit;font-weight:800;margin-top:11px;cursor:pointer}.btn:disabled{opacity:.6}
+.btn.light{background:#e8effc;color:#1e40af}.help{font-size:12px;color:var(--muted);line-height:1.5;margin:8px 0}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.chip{background:#fff;border:1px solid #cbd5e1;border-radius:99px;padding:7px 10px;font-size:12px}
+.hidden{display:none!important}.result{line-height:1.5}.result h2{font-size:18px;margin:0 0 5px}.result ul{padding-left:20px;font-size:14px}.result li{margin:6px 0}.danger{background:#fef2f2;border-color:#fecaca}.caution{background:#fffbeb;border-color:#fde68a}.safe{background:#f0fdf4;border-color:#bbf7d0}
+.pill{display:inline-block;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:800;background:#e2e8f0;margin-bottom:8px}.meter{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin:12px 0}.meter span{height:100%;display:block;width:0%;background:#d97706}
+.preview{width:100%;max-height:240px;object-fit:contain;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;margin-top:10px}
+h3{font-size:16px;margin:0 0 10px}.tip{font-size:13px;line-height:1.5;margin:9px 0}.tip b{display:block}.small{font-size:11px;color:var(--muted)}footer{text-align:center;font-size:12px;color:var(--muted);padding:8px 18px 25px;line-height:1.6}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">✓</div><div><h1>SachCheck</h1><p>रुको, जाँचो, फिर भरोसा करो • V3 Prototype</p></div><button id="installBtn" class="install-btn hidden" onclick="installApp()">📲 ऐप इंस्टॉल करें</button></div></header>
+<main class="wrap">
+<div class="notice">🛡️ <b>ईमानदार नोट:</b> यह शुरुआती प्रोटोटाइप है। टेक्स्ट/लिंक की जाँच डिवाइस पर सामान्य नियमों से होती है। Screenshot OCR के लिए इंटरनेट और OCR लाइब्रेरी लोड होना ज़रूरी है। अभी कोई वास्तविक AI API या लाइव URL reputation सेवा कनेक्ट नहीं है।</div>
+<div class="tabs">
+<button class="tab active" id="tmsg" onclick="switchTab('msg')">💬 मैसेज</button>
+<button class="tab" id="tshot" onclick="switchTab('shot')">📸 स्क्रीनशॉट</button>
+<button class="tab" id="tlink" onclick="switchTab('link')">🔗 लिंक</button>
+</div>
+<section class="card" id="pmsg">
+<label for="message">मैसेज यहाँ पेस्ट करें</label>
+<textarea id="message" placeholder="संदिग्ध SMS, WhatsApp या ईमेल का टेक्स्ट पेस्ट करें…"></textarea>
+<div class="chips"><button class="chip" onclick="example('prize')">🎁 इनाम उदाहरण</button><button class="chip" onclick="example('bank')">🏦 बैंक/KYC उदाहरण</button><button class="chip" onclick="example('normal')">📦 सामान्य उदाहरण</button></div>
+<button class="btn" onclick="analyzeText()">मैसेज के संकेत जाँचें</button>
+<p class="help">OTP, पासवर्ड, बैंक डिटेल या निजी जानकारी पेस्ट न करें। नाम/नंबर पहले छिपा दें।</p>
+</section>
+<section class="card hidden" id="pshot">
+<h3>📸 स्क्रीनशॉट से टेक्स्ट पढ़ें</h3>
+<label for="shot">अपने फोन से स्क्रीनशॉट चुनें</label>
+<input id="shot" type="file" accept="image/*" onchange="previewImage(event)" style="max-width:100%">
+<img id="preview" class="preview hidden" alt="चुना गया स्क्रीनशॉट">
+<button class="btn" id="ocrBtn" onclick="runOCR()">स्क्रीनशॉट का टेक्स्ट पढ़ें</button>
+<p class="help">OCR के लिए इंटरनेट कनेक्शन चाहिए। स्क्रीनशॉट में निजी जानकारी हो तो उसे अपलोड न करें। इस पेज का कोड तस्वीर किसी अपने सर्वर पर नहीं भेजता, लेकिन OCR लाइब्रेरी ब्राउज़र में इंटरनेट से लोड होती है।</p>
+<div id="ocrStatus" class="help"></div>
+<label for="ocrText">पहचाना गया टेक्स्ट (ज़रूरत हो तो सुधारें)</label>
+<textarea id="ocrText" placeholder="OCR पूरा होने पर टेक्स्ट यहाँ दिखेगा…"></textarea>
+<button class="btn light" onclick="analyzeOCR()">पहचाने गए टेक्स्ट के संकेत जाँचें</button>
+</section>
+<section class="card hidden" id="plink">
+<label for="url">वेब लिंक (URL) डालें</label>
+<input id="url" type="url" inputmode="url" placeholder="https://example.com">
+<button class="btn" onclick="analyzeURL()">लिंक के संकेत जाँचें</button>
+<p class="help">यहाँ लिंक खोला नहीं जाता। डेमो सिर्फ URL के रूप में कुछ संकेत देखता है; यह वायरस स्कैन या live reputation check नहीं है।</p>
+</section>
+<section id="result" class="card result hidden" aria-live="polite"></section>
+<section class="card"><h3>🧠 ऑनलाइन सुरक्षित रहने के नियम</h3>
+<div class="tip">🔐 <b>OTP/PIN/पासवर्ड किसी को न बताएं।</b> इन्हें यहाँ भी पेस्ट न करें।</div>
+<div class="tip">⏳ <b>जल्दबाज़ी के दबाव में फैसला न करें।</b> “अभी क्लिक करो” या “अकाउंट बंद होगा” पर रुकें।</div>
+<div class="tip">🏦 <b>आधिकारिक ऐप खुद खोलें।</b> मैसेज में आए लिंक से बैंक या सरकारी सेवा में लॉगिन न करें।</div>
+<div class="tip">💸 <b>पैसे भेजने/QR स्कैन करने से पहले पुष्टि करें।</b> पैसे पाने के लिए UPI PIN डालना नहीं पड़ता।</div>
+</section>
+</main>
+<footer>SachCheck V3 • मोबाइल-फ्रेंडली प्रोटोटाइप<br>कम चेतावनी संकेत मिलने का अर्थ सुरक्षित होना नहीं है। अंतिम पुष्टि हमेशा आधिकारिक स्रोत से करें।</footer>
+<script>
+function switchTab(tab){
+ const map={msg:'pmsg',shot:'pshot',link:'plink'};
+ Object.keys(map).forEach(k=>{document.getElementById(map[k]).classList.toggle('hidden',k!==tab);document.getElementById('t'+k).classList.toggle('active',k===tab)});
+ document.getElementById('result').classList.add('hidden');
+}
+function example(type){
+ const e={
+ prize:'बधाई! आपने ₹50,000 का इनाम जीता है। इसे पाने के लिए अभी लिंक खोलें और अपनी जानकारी भरें।',
+ bank:'आपका बैंक अकाउंट 30 मिनट में बंद हो जाएगा। अभी KYC अपडेट करें और OTP बताएं।',
+ normal:'आपका पार्सल डिलीवरी के लिए निकल चुका है। जानकारी आधिकारिक ऐप में देखें।'
+ };document.getElementById('message').value=e[type];
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function report(title,desc,score,items,level){
+ const box=document.getElementById('result');box.className='card result '+level;
+ const c=level==='danger'?'#dc2626':level==='caution'?'#d97706':'#16a34a';
+ box.innerHTML='<span class="pill">'+(level==='danger'?'ज़्यादा सावधानी':level==='caution'?'जाँच ज़रूरी':'सीमित संकेत')+'</span><h2>'+esc(title)+'</h2><div>'+esc(desc)+'</div><div class="meter"><span style="width:'+score+'%;background:'+c+'"></span></div><b>मिले हुए संकेत</b><ul>'+items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><p><b>क्या करें:</b> जवाब न दें, पैसे न भेजें और लिंक न खोलें जब तक आधिकारिक स्रोत से पुष्टि न हो जाए।</p><p class="small">यह स्कोर वैज्ञानिक/आधिकारिक जोखिम स्कोर नहीं है; केवल नियम-आधारित अनुमान है।</p>';
+ box.classList.remove('hidden');box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+const rules=[
+ [/otp|one.time.password|पासवर्ड|password|pin\b|cvv|ओटीपी/i,'OTP, पासवर्ड, PIN या CVV जैसी संवेदनशील जानकारी का उल्लेख है। इसे किसी से शेयर न करें।',3],
+ [/इनाम|लॉटरी|जीत गए|जीता है|lottery|winner|won|prize|free gift|मुफ्त गिफ्ट|₹\s?\d{3,}/i,'इनाम/बड़ी रकम का दावा है। अनपेक्षित इनाम वाले संदेश धोखे का संकेत हो सकते हैं।',2],
+ [/अभी|तुरंत|जल्दी|urgent|immediately|आज ही|30 मिनट|account.*बंद|block.*account|expire/i,'तुरंत कार्रवाई करने का दबाव है। डराकर जल्दी फैसला करवाने की कोशिश हो सकती है।',2],
+ [/क्लिक|click|लिंक|link|https?:\/\//i,'लिंक खोलने या उस पर कार्रवाई करने को कहा गया है। डोमेन खुद जाँचें।',1],
+ [/kyc|बैंक अकाउंट|bank account|verify.*account|अपडेट करें|update.*account/i,'अकाउंट/KYC अपडेट की माँग है। बैंक की आधिकारिक ऐप से पुष्टि करें।',2],
+ [/qr|स्कैन|scan.*code|पैसे भेज|send money|transfer.*money|upi pin/i,'QR/पैसे भेजने/UPI PIN का संकेत है। भुगतान की पुष्टि स्वतंत्र रूप से करें।',2],
+ [/फीस|शुल्क|delivery fee|कूरियर चार्ज|parcel.*hold|पार्सल.*रुका/i,'डिलीवरी या पार्सल शुल्क का उल्लेख है। केवल आधिकारिक ऐप में स्थिति देखें।',1],
+ [/remote access|screen share|स्क्रीन शेयर|anydesk|teamviewer/i,'रिमोट एक्सेस या स्क्रीन शेयर का संकेत है। अनजान व्यक्ति को फोन का नियंत्रण न दें।',3]
+];
+function scanText(text){
+ if(!text.trim()){report('पहले टेक्स्ट डालें','जाँच के लिए कोई टेक्स्ट उपलब्ध नहीं है।',0,['टेक्स्ट खाली है।'],'caution');return;}
+ let points=0,items=[];for(const [re,msg,w] of rules){if(re.test(text)){items.push(msg);points+=w;}}
+ if(!items.length)items.push('इस डेमो के सामान्य नियमों से कोई चेतावनी संकेत नहीं मिला। यह मैसेज सुरक्षित होने का प्रमाण नहीं है।');
+ if(points>=5)report('कई चेतावनी संकेत मिले','मैसेज पर भरोसा करने से पहले अलग से पुष्टि करें।',Math.min(95,points*13),items,'danger');
+ else if(points>=2)report('सावधानी से जाँचें','कुछ संभावित जोखिम संकेत मिले हैं।',Math.max(28,points*13),items,'caution');
+ else report('कम संकेत मिले','यह सीमित जाँच है; मैसेज की सच्चाई सत्यापित नहीं हुई।',Math.max(8,points*13),items,'safe');
+}
+function analyzeText(){scanText(document.getElementById('message').value);}
+function analyzeOCR(){scanText(document.getElementById('ocrText').value);}
+function previewImage(event){const f=event.target.files&&event.target.files[0];if(!f)return;const img=document.getElementById('preview');img.src=URL.createObjectURL(f);img.classList.remove('hidden');document.getElementById('ocrStatus').textContent='तस्वीर चुनी गई। अब टेक्स्ट पढ़ने का बटन दबाएँ।';}
+async function runOCR(){
+ const f=document.getElementById('shot').files[0];if(!f){document.getElementById('ocrStatus').textContent='पहले स्क्रीनशॉट चुनें।';return;}
+ const btn=document.getElementById('ocrBtn'),status=document.getElementById('ocrStatus');btn.disabled=true;status.textContent='OCR लाइब्रेरी लोड हो रही है… इंटरनेट चालू रखें।';
+ try{
+  if(!window.Tesseract){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=resolve;s.onerror=()=>reject(new Error('OCR लाइब्रेरी लोड नहीं हुई। इंटरनेट जाँचें।'));document.head.appendChild(s);});}
+  status.textContent='तस्वीर से टेक्स्ट पढ़ा जा रहा है… इसमें थोड़ा समय लग सकता है।';
+  const result=await Tesseract.recognize(f,'eng+hin',{logger:m=>{if(m.status)status.textContent='OCR: '+m.status+(m.progress?' '+Math.round(m.progress*100)+'%':'');}});
+  document.getElementById('ocrText').value=result.data.text||'कोई टेक्स्ट नहीं पढ़ा जा सका।';
+  status.textContent='पूरा हुआ। टेक्स्ट जाँच लें—OCR गलतियाँ कर सकता है।';
+ }catch(e){status.textContent='OCR नहीं चल पाया: '+e.message+'. आप टेक्स्ट खुद कॉपी करके मैसेज टैब में भी जाँच सकते हैं.';}
+ finally{btn.disabled=false;}
+}
+function analyzeURL(){
+ const raw=document.getElementById('url').value.trim();if(!raw){report('पहले लिंक डालें','जाँच के लिए URL लिखें।',0,['लिंक खाली है।'],'caution');return;}
+ let u;try{u=new URL(raw.includes('://')?raw:'https://'+raw);}catch(e){report('लिंक का फ़ॉर्मैट समझ नहीं आया','इसे खोलने की कोशिश न करें।',60,['URL को पढ़ा नहीं जा सका।'],'danger');return;}
+ let points=0,items=[],host=u.hostname.toLowerCase();
+ if(u.protocol!=='https:'){items.push('यह HTTPS के बजाय HTTP इस्तेमाल करता है। यह अकेले धोखाधड़ी का प्रमाण नहीं, लेकिन सावधानी का कारण है।');points+=2;}
+ if(/^\d{1,3}(\.\d{1,3}){3}$/.test(host)){items.push('डोमेन नाम की जगह IP नंबर जैसा पता है।');points+=2;}
+ if(host.includes('xn--')){items.push('डोमेन में punycode है; मिलता-जुलता नकली नाम होने की संभावना जाँचें।');points+=2;}
+ if(host.split('.').length>=5){items.push('डोमेन में कई हिस्से हैं—पूरा नाम ध्यान से पढ़ें।');points++;}
+ if(host.includes('-')||/\d/.test(host)){items.push('डोमेन में हाइफ़न या अंक हैं; असली कंपनी के नाम से मिलान करें।');points++;}
+ if(/login|verify|secure|update|claim|gift|prize|bank|kyc|wallet/i.test(host)){items.push('डोमेन में login/verify/gift जैसे शब्द हैं; केवल नाम देखकर भरोसा न करें।');points++;}
+ if(!items.length)items.push('इस डेमो को कोई सामान्य चेतावनी संकेत नहीं मिला। वेबसाइट की असलियत या सुरक्षा सत्यापित नहीं हुई।');
+ items.push('इस वर्ज़न में live blacklist, DNS या वेबसाइट reputation सेवा कनेक्ट नहीं है। कंपनी की आधिकारिक वेबसाइट खुद खोलकर पुष्टि करें।');
+ if(points>=4)report('लिंक में जाँचने योग्य संकेत मिले','लिंक खोलने से पहले सावधानी बरतें।',Math.min(90,points*15),items,'danger');
+ else if(points>=1)report('लिंक की पुष्टि करें','कुछ संभावित चेतावनी संकेत हैं।',Math.max(25,points*15),items,'caution');
+ else report('कम संकेत मिले','इससे लिंक सुरक्षित साबित नहीं होता।',8,items,'safe');
+}
+
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  const b = document.getElementById('installBtn');
+  if (b) b.classList.remove('hidden');
+});
+async function installApp() {
+  if (!installPrompt) {
+    alert('अगर इंस्टॉल बटन उपलब्ध नहीं है, तो Chrome के मेन्यू (⋮) में “Add to Home screen” या “Install app” देखें। यह सुविधा HTTPS पर होस्ट करने के बाद उपलब्ध हो सकती है।');
+    return;
+  }
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  const b = document.getElementById('installBtn');
+  if (b) b.classList.add('hidden');
+}
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+
+</script>
+</body></html>

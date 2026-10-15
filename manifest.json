@@ -1,0 +1,14 @@
+{
+  "id": "./",
+  "name": "SachCheck — Message & Link Checker",
+  "short_name": "SachCheck",
+  "description": "रुको, जाँचो, फिर भरोसा करो। संदिग्ध मैसेज और लिंक के संकेत जाँचें।",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f6fb",
+  "theme_color": "#0f172a",
+  "lang": "hi",
+  "categories": ["security", "utilities"]
+}
